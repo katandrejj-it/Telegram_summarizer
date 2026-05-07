@@ -5,4 +5,4 @@ Telegram AI digest: collects messages from your monitored chats/channels via Tel
 digest to you via your own Telegram bot.
 
 The actual project lives in [`tg_digest/`](tg_digest/). See
-[`tg_digest/README.md`](tg_digest/README.md) for setup, configuration and usage.
+[`tg_digest/README.md`](tg_digest/README.md) for setup, configuration and usage. 
