@@ -6,3 +6,4 @@ digest to you via your own Telegram bot.
 
 The actual project lives in [`tg_digest/`](tg_digest/). See
 [`tg_digest/README.md`](tg_digest/README.md) for setup, configuration and usage. 
+1
