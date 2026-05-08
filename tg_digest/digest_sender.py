@@ -51,6 +51,74 @@ def _target_chat_id() -> str:
     return chat_id
 
 
+def _format_digest_item(item: dict[str, Any]) -> str:
+    """Format digest item with topics and links."""
+    topics = item.get("topics", [])
+    
+    header = (
+        f"💬 *{_escape_md(item['chat_name'])}*\n"
+        f"📊 {item['msg_count']} сообщений\n\n"
+    )
+    
+    if not topics:
+        return header + "Нет значимых обсуждений\n"
+    
+    body = ""
+    for topic in topics:
+        importance = topic.get("importance", "обычно")
+        icon = "⚡" if importance == "важно" else "🔹"
+        
+        title = topic.get("title", "Без названия")
+        summary = topic.get("summary", "")
+        first_msg_id = topic.get("first_message_id", item.get("first_msg_id"))
+        
+        link = make_tg_link(
+            item["chat_id"], 
+            first_msg_id, 
+            item.get("chat_username")
+        )
+        
+        body += (
+            f"{icon} *{_escape_md(title)}*\n"
+            f"   {summary}\n"
+            f"   [→ Перейти к обсуждению]({link})\n\n"
+        )
+    
+    return header + body
+
+
+def _format_digest_item_plain(item: dict[str, Any]) -> str:
+    """Format digest item as plain text (fallback)."""
+    topics = item.get("topics", [])
+    
+    header = (
+        f"💬 {item['chat_name']}\n"
+        f"📊 {item['msg_count']} сообщений\n\n"
+    )
+    
+    if not topics:
+        return header + "Нет значимых обсуждений\n"
+    
+    body = ""
+    for topic in topics:
+        importance = topic.get("importance", "обычно")
+        icon = "⚡" if importance == "важно" else "🔹"
+        
+        title = topic.get("title", "Без названия")
+        summary = topic.get("summary", "")
+        first_msg_id = topic.get("first_message_id", item.get("first_msg_id"))
+        
+        link = make_tg_link(
+            item["chat_id"], 
+            first_msg_id, 
+            item.get("chat_username")
+        )
+        
+        body += f"{icon} {title}\n   {summary}\n   {link}\n\n"
+    
+    return header + body
+
+
 async def send_digest(summaries: list[dict[str, Any]], hours: int) -> None:
     """Send the assembled digest to the configured chat."""
     bot = _build_bot()
@@ -71,16 +139,7 @@ async def send_digest(summaries: list[dict[str, Any]], hours: int) -> None:
     await bot.send_message(chat_id=target, text=header, parse_mode=ParseMode.MARKDOWN)
 
     for item in summaries:
-        link = make_tg_link(
-            item["chat_id"], item["first_msg_id"], item.get("chat_username")
-        )
-
-        text = (
-            f"💬 *{_escape_md(item['chat_name'])}*\n"
-            f"_{item['msg_count']} сообщений_\n\n"
-            f"{item['summary']}\n\n"
-            f"[→ Открыть чат]({link})"
-        )
+        text = _format_digest_item(item)
         try:
             await bot.send_message(
                 chat_id=target,
@@ -90,14 +149,12 @@ async def send_digest(summaries: list[dict[str, Any]], hours: int) -> None:
             )
         except Exception as exc:  # noqa: BLE001
             logger.error("Failed to send digest item for %s: %s", item["chat_name"], exc)
+            # Fallback to plain text
             try:
+                plain_text = _format_digest_item_plain(item)
                 await bot.send_message(
                     chat_id=target,
-                    text=(
-                        f"💬 {item['chat_name']}\n"
-                        f"{item['msg_count']} сообщений\n\n"
-                        f"{item['summary']}\n\n{link}"
-                    ),
+                    text=plain_text,
                     disable_web_page_preview=True,
                 )
             except Exception as exc2:  # noqa: BLE001
