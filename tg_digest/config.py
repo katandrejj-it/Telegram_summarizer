@@ -12,8 +12,8 @@ from __future__ import annotations
 #   - a private chat username
 #   - a numeric chat id (e.g. -1001234567890) for private chats without a username
 CHATS_TO_MONITOR: list[str | int] = [
-    # "durov",
-    # "some_private_chat",
+     "durov",
+     "bbbreaking"
     # -1001234567890,
 ]
 

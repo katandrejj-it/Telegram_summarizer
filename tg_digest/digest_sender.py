@@ -65,7 +65,7 @@ async def send_digest(summaries: list[dict[str, Any]], hours: int) -> None:
 
     header = (
         f"📰 *Дайджест за последние {hours} часов*\n"
-        f"Обработано чатов: {len(summaries)}\n"
+        f"\n✅ Обработано чатов: {len(summaries)}\n"
         f"{'─' * 30}\n"
     )
     await bot.send_message(chat_id=target, text=header, parse_mode=ParseMode.MARKDOWN)

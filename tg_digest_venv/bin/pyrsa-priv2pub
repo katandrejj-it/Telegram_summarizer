@@ -1,0 +1,6 @@
+#!/Users/katandrejj1991gmail.com/Downloads/Work/GIT_landing/Telegram_summarizer/tg_digest_venv/bin/python3
+import sys
+from rsa.util import private_to_public
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(private_to_public())
